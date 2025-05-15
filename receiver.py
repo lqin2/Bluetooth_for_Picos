@@ -47,7 +47,7 @@ async def receive_data_task(characteristic):
             
             if data:
                 print(f"{IAM} received: {decode_message(data)}, count: {message_count}")
-                servo.duty_u16(data)
+                servo.duty_u16(decode_message(data))
                 #await characteristic.write(encode_message("Got it"))
                 await asyncio.sleep(0.5)
                 
