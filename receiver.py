@@ -4,7 +4,7 @@ import asyncio
 import struct
 import time
 from sys import exit
-from machine import Pin, ADC, UART
+from machine import Pin, ADC, UART, PWM
 
 _SERVICE_UUID = bluetooth.UUID(0x1848)
 _CHARACTERISTIC_UUID = bluetooth.UUID(0x2A6E)
@@ -39,12 +39,15 @@ def decode_message(message):
 async def receive_data_task(characteristic):
     """ Receive data from the connected device """
     global message_count
+    servo = PWM(Pin(16))  # Servo connected to GP15
+    servo.freq(50)
     while True:
         try:
             data = await characteristic.read()
             
             if data:
                 print(f"{IAM} received: {decode_message(data)}, count: {message_count}")
+                servo.duty_u16(data)
                 #await characteristic.write(encode_message("Got it"))
                 await asyncio.sleep(0.5)
                 
@@ -127,6 +130,5 @@ async def main():
         await asyncio.gather(*tasks)
         
 asyncio.run(main())
-
 
 
